@@ -10,11 +10,23 @@ var Db *gorm.DB
 /*
 定义数据库连接参数
 */
-func InitDb() {
-	var dsn = "root:1234@tcp(127.0.0.1:3306)/monitor?charset=utf8mb4&parseTime=True&loc=Local"
+func InitDb() error {
+	dsn, e := getDatabaseConnection()
+	if e != nil {
+		return e
+	}
 	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return err
 	}
 	Db = d
+	return nil
+}
+
+func getDatabaseConnection() (string, error) {
+	connection, err := ConfigReadDatabaseConnection()
+	if err != nil {
+		return "", err
+	}
+	return connection, nil
 }

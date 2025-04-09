@@ -1,11 +1,14 @@
 package models
 
+import "time"
+
 type MonitorHistory struct {
 	Id               int
 	TargetId         int
 	MonitorStartTime string
-	AssetCount       string
+	AssetCount       int
+	ChangedCount     int
 	ChangedLog       string
 	IsDeleted        int
-	CreatTime        string
+	CreatTime        time.Time
 }

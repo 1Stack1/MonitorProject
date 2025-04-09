@@ -1,9 +1,14 @@
 package models
 
+import (
+	"time"
+)
+
 type MonitorTarget struct {
-	Id        int
-	Ip        string
-	Domain    string
-	Condition string
-	IsDeleted int
+	Id         int `gorm:"primaryKey"`
+	Ip         string
+	Domain     string
+	Condition  string
+	IsDeleted  int
+	CreateTime time.Time
 }
