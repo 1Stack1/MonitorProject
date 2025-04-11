@@ -110,8 +110,8 @@ func TestDeleteMonitorTarget(t *testing.T) {
 
 	// 注意：必须完全匹配GORM实际生成的SQL（包括所有反引号和空格）
 	mock.ExpectExec(regexp.QuoteMeta(
-		"UPDATE `monitor_target` SET `is_deleted` = 1 WHERE `id`=?")). // 所有字段用反引号
-		WithArgs(targetID).
+		"UPDATE `monitor_target` SET `is_deleted`=? WHERE `id` = ?")). // 所有字段用反引号
+		WithArgs(1, targetID).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	mock.ExpectCommit()
