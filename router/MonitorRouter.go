@@ -2,6 +2,7 @@ package router
 
 import (
 	"MonitorProject/models"
+	"MonitorProject/models/dto"
 	"MonitorProject/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -89,9 +90,9 @@ func getHistory(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
 		return
 	}
-	var assetChangeLog []models.AssetChangeLog
+	var assetChangeLog []dto.AssetChangeLog
 	for _, history := range histories {
-		assetChangeLog = append(assetChangeLog, models.AssetChangeLog{
+		assetChangeLog = append(assetChangeLog, dto.AssetChangeLog{
 			MonitorDate:  fmt.Sprintf("%d:%d:%d", history.MonitorStartTime.Year(), history.MonitorStartTime.Month(), history.MonitorStartTime.Day()),
 			ChangedCount: history.ChangedCount,
 		})
