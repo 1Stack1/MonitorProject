@@ -5,7 +5,7 @@ import (
 )
 
 type MonitorTarget struct {
-	Id         int `gorm:"primaryKey"`
+	Id         int
 	Ip         string
 	Domain     string
 	Condition  string
