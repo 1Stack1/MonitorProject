@@ -65,3 +65,38 @@ func TestGetHistory_Success(t *testing.T) {
 	// 6. 验证所有预期的 SQL 操作都已完成
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
+
+func TestGetLastHistory_Success(t *testing.T) {
+	// 1. 初始化Mock数据库
+	mockDb, mock := tool.GetMysqlMock()
+	//defer mockDb.Close()
+
+	// 替换全局DB实例（测试后恢复）
+	originalDb := tool.Db
+	tool.Db = mockDb
+	defer func() { tool.Db = originalDb }()
+
+	// 2. 准备测试数据
+	testTargetID := 1
+	expectedCount := 3524
+
+	// 3. 设置Mock预期
+	mock.ExpectQuery(regexp.QuoteMeta(
+		"SELECT asset_count FROM monitor_history WHERE target_id = ? ORDER BY id desc LIMIT 1")).
+		WithArgs(testTargetID). // 验证参数是否正确
+		WillReturnRows(
+			sqlmock.NewRows([]string{"asset_count"}).
+				AddRow(expectedCount), // 模拟返回单行单列数据
+		)
+
+	// 4. 执行查询
+	var lastHistoryCount int
+	err := tool.Db.Debug().
+		Raw("SELECT asset_count FROM monitor_history WHERE target_id = ? ORDER BY id desc LIMIT 1", testTargetID).
+		Scan(&lastHistoryCount).Error
+
+	// 5. 验证结果
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCount, lastHistoryCount)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
