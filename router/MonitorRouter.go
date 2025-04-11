@@ -3,6 +3,7 @@ package router
 import (
 	"MonitorProject/models"
 	"MonitorProject/tool"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -75,5 +76,28 @@ func deleteMonitor(c *gin.Context) {
 
 // 获取资产变化历史
 func getHistory(c *gin.Context) {
+	var histories []models.MonitorHistory
+	id := c.Param("id")
 
+	if result := tool.Db.Debug().Table("monitor_history").
+		Where("target_id = ? and is_deleted = ?", id, 0).Find(&histories); result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
+		return
+	}
+
+	if len(histories) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
+		return
+	}
+	var assetChangeLog []models.AssetChangeLog
+	for _, history := range histories {
+		assetChangeLog = append(assetChangeLog, models.AssetChangeLog{
+			MonitorDate:  fmt.Sprintf("%d:%d:%d", history.MonitorStartTime.Year(), history.MonitorStartTime.Month(), history.MonitorStartTime.Day()),
+			ChangedCount: history.ChangedCount,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"id":         histories[0].TargetId,
+		"change_log": assetChangeLog,
+	})
 }
