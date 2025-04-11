@@ -1,7 +1,7 @@
 package main
 
 import (
-	"MonitorProject/router"
+	"MonitorProject/jobs"
 	"MonitorProject/tool"
 )
 
@@ -16,9 +16,11 @@ func main() {
 	//初始化数据库
 	tool.InitDb()
 
-	//暴露访问地址
+	jobs.UrlInit()
+	jobs.AssetMoniter()
+	/*//暴露访问地址
 	r := router.GetMonitorRouter()
 	port := "8080"
-	r.Run(":" + port)
+	r.Run(":" + port)*/
 
 }

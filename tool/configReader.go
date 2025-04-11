@@ -75,3 +75,14 @@ func ConfigReadEmailPassword() (string, error) {
 	}
 	return emailPassword, nil
 }
+
+/*
+读取用户key
+*/
+func ConfigReadUserKey() (string, error) {
+	userKey := viperContext.GetString("user_key")
+	if userKey == "" {
+		return "", fmt.Errorf("userkey必须定义")
+	}
+	return userKey, nil
+}

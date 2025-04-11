@@ -5,10 +5,10 @@ import "time"
 type MonitorHistory struct {
 	Id               int
 	TargetId         int
-	MonitorStartTime string
+	MonitorStartTime time.Time
 	AssetCount       int
 	ChangedCount     int
 	ChangedLog       string
 	IsDeleted        int
-	CreatTime        time.Time
+	CreateTime       time.Time
 }
