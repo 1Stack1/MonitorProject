@@ -16,6 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//todo 定义路由测试
+
 func TestAddMonitor_Unit(t *testing.T) {
 	// 1. 创建Mock DB
 	mockDB, mock := tool.GetMysqlMock()
@@ -63,8 +65,8 @@ func TestGetMonitor(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		// 设置Mock预期
 		mock.ExpectQuery(regexp.QuoteMeta(
-			"SELECT * FROM `monitor_target` WHERE id = ? AND is_deleted = ?")).
-			WithArgs("1", 0).
+			"SELECT * FROM `monitor_target` WHERE id = ? and is_deleted = ?")).
+			WithArgs(1, 0).
 			WillReturnRows(
 				sqlmock.NewRows([]string{"id", "ip", "domain"}).
 					AddRow(1, "192.168.1.1", "example.com"),

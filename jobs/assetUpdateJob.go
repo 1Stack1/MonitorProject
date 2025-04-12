@@ -45,6 +45,7 @@ func UrlInit() error {
 资产监控
 */
 func AssetMoniter() {
+	//todo 添加个测试go文件
 	var targets []models.MonitorTarget // 改为切片类型
 
 	if result := tool.Db.Debug().Table("monitor_target").Where("is_deleted = ?", 0).Find(&targets); result.Error != nil {
@@ -66,6 +67,7 @@ func AssetMoniter() {
 			Scan(&lastHistoryCount); result.Error != nil {
 			continue
 		}
+		//todo 计算第一次监控
 		//保存记录
 		history := models.MonitorHistory{
 			TargetId:         target.Id,
@@ -77,6 +79,7 @@ func AssetMoniter() {
 		if result := tool.Db.Debug().Table("monitor_history").Create(&history); result.Error != nil {
 			continue
 		}
+		//todo 如果changedCount超过阈值发送邮件
 	}
 }
 
@@ -84,6 +87,7 @@ func AssetMoniter() {
 建立完整url
 */
 func buildFullUrl(target models.MonitorTarget) string {
+	//todo 将url用&拼起来
 	if target.Ip != "" {
 		queryContent := "ip=\"" + target.Ip + "\""
 		encoded := base64QueryArg(queryContent)
