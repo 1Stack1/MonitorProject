@@ -8,7 +8,6 @@ type MonitorHistory struct {
 	MonitorStartTime time.Time
 	AssetCount       int
 	ChangedCount     int
-	ChangedLog       string
 	IsDeleted        int
 	CreateTime       time.Time
 }

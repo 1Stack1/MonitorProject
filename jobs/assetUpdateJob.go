@@ -9,26 +9,48 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 var url string
+var changedThreshold int
 
 /*
 定时任务：每天更新资产数据
 */
 func StartAssetUpdateJob() {
-	c := cron.New(cron.WithSeconds()) // 启用秒级解析
-	_, err := c.AddFunc("0 0 * * *", func() {
+	c := cron.New(cron.WithSeconds())
+	err := ChangedThresholdInit()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = UrlInit()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
+	_, err1 := c.AddFunc("0 0 0 * * *", func() {
+		AssetMoniter()
 	})
 
-	if err != nil {
+	if err1 != nil {
 		log.Fatal("Error scheduling job:", err)
 	}
 
 	c.Start()
 
+}
+
+func ChangedThresholdInit() error {
+	threshold, err := tool.ConfigReadChangedThreshold()
+	if err != nil {
+		return err
+	}
+	changedThreshold = threshold
+	return nil
 }
 
 func UrlInit() error {
@@ -45,7 +67,6 @@ func UrlInit() error {
 资产监控
 */
 func AssetMoniter() {
-	//todo 添加个测试go文件
 	var targets []models.MonitorTarget // 改为切片类型
 
 	if result := tool.Db.Debug().Table("monitor_target").Where("is_deleted = ?", 0).Find(&targets); result.Error != nil {
@@ -67,7 +88,12 @@ func AssetMoniter() {
 			Scan(&lastHistoryCount); result.Error != nil {
 			continue
 		}
-		//todo 计算第一次监控
+		if lastHistoryCount == 0 {
+			lastHistoryCount = size
+		}
+		if (size-lastHistoryCount) >= changedThreshold || (lastHistoryCount-size) >= changedThreshold {
+			tool.SendMail("监控目标" + strconv.Itoa(target.Id) + "发生重大变化")
+		}
 		//保存记录
 		history := models.MonitorHistory{
 			TargetId:         target.Id,
@@ -79,7 +105,6 @@ func AssetMoniter() {
 		if result := tool.Db.Debug().Table("monitor_history").Create(&history); result.Error != nil {
 			continue
 		}
-		//todo 如果changedCount超过阈值发送邮件
 	}
 }
 
@@ -87,20 +112,19 @@ func AssetMoniter() {
 建立完整url
 */
 func buildFullUrl(target models.MonitorTarget) string {
-	//todo 将url用&拼起来
+	var queryContent string
 	if target.Ip != "" {
-		queryContent := "ip=\"" + target.Ip + "\""
-		encoded := base64QueryArg(queryContent)
-		return concatenatedQueryCondition(encoded)
-	} else if target.Domain != "" {
-		queryContent := "domain=\"" + target.Domain + "\""
-		encoded := base64QueryArg(queryContent)
-		return concatenatedQueryCondition(encoded)
-	} else {
-		queryContent := target.Condition
-		encoded := base64QueryArg(queryContent)
-		return concatenatedQueryCondition(encoded)
+		queryContent += "ip=\"" + target.Ip + "\"&&"
 	}
+	if target.Domain != "" {
+		queryContent += "domain=\"" + target.Domain + "\"&&"
+	}
+	if target.Condition != "" {
+		queryContent += target.Condition + "&&"
+	}
+	queryContent = queryContent[:len(queryContent)-2]
+	encoded := base64QueryArg(queryContent)
+	return concatenatedQueryCondition(encoded)
 }
 
 func base64QueryArg(QueryContent string) string {

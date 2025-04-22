@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -76,6 +77,22 @@ func ConfigReadEmailPassword() (string, error) {
 	return emailPassword, nil
 }
 
+func ConfigReadFromEmailUser() (string, error) {
+	FromEmailUser := viperContext.GetString("from_email_user")
+	if FromEmailUser == "" {
+		return "", fmt.Errorf("发件人必须定义")
+	}
+	return FromEmailUser, nil
+}
+
+func ConfigReadToEmailUser() (string, error) {
+	ToEmailUser := viperContext.GetString("to_email_user")
+	if ToEmailUser == "" {
+		return "", fmt.Errorf("送件人必须定义")
+	}
+	return ToEmailUser, nil
+}
+
 /*
 读取用户key
 */
@@ -85,4 +102,19 @@ func ConfigReadUserKey() (string, error) {
 		return "", fmt.Errorf("userkey必须定义")
 	}
 	return userKey, nil
+}
+
+/*
+读取阈值
+*/
+func ConfigReadChangedThreshold() (int, error) {
+	changedThresholdStr := viperContext.GetString("changed_threshold")
+	if changedThresholdStr == "" {
+		return 10, nil
+	}
+	changedThreshold, err := strconv.Atoi(changedThresholdStr)
+	if err != nil {
+		return 0, fmt.Errorf("changedThreshold转换为整数错误: %w", err)
+	}
+	return changedThreshold, nil
 }

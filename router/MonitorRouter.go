@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func GetMonitorRouter() *gin.Engine {
@@ -28,6 +29,7 @@ func addMonitor(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	input.CreateTime = time.Now()
 	result := tool.Db.Table("monitor_target").Create(&input)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
@@ -69,7 +71,7 @@ func deleteMonitor(c *gin.Context) {
 		return
 	}
 	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "this have changed"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "this have changed/Record not found"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Monitor stopped"})

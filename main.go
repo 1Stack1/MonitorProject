@@ -2,25 +2,31 @@ package main
 
 import (
 	"MonitorProject/jobs"
+	"MonitorProject/router"
 	"MonitorProject/tool"
+	"fmt"
 )
 
 var configPath, configName, configType = "./config", "config", "yml"
 
 func main() {
-	tool.ConfigInit(configPath, configName, configType)
-	//tool.SendMail()
-	/*//启动定时任务
-	jobs.StartAssetUpdateJob()*/
-
+	err := tool.ConfigInit(configPath, configName, configType)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	//初始化数据库
-	tool.InitDb()
+	err = tool.InitDb()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	//启动定时任务
+	jobs.StartAssetUpdateJob()
 
-	jobs.UrlInit()
-	jobs.AssetMoniter()
-	/*//暴露访问地址
+	//暴露访问地址
 	r := router.GetMonitorRouter()
 	port := "8080"
-	r.Run(":" + port)*/
+	r.Run(":" + port)
 
 }
