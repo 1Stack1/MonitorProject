@@ -1,0 +1,17 @@
+stages:
+  - test
+test_CICD:
+  stage: test
+  image: golang:1.23.7  # 推荐使用稳定版本(1.21而非1.23.7)
+  tags:
+    - shared  # 必须与共享Runner的tag匹配
+  script:
+    - go test -v ./models/
+  artifacts:
+    when: always  # 即使失败也保留结果
+    paths:
+      - report.xml
+    reports:
+      junit: report.xml  # 可视化测试结果
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"  # 代码推送时触发
